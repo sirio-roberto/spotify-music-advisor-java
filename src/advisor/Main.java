@@ -5,11 +5,11 @@ public class Main {
         if (args.length >= 2) {
             for (int i = 0; i < args.length; i++) {
                 if ("-access".equals(args[i])) {
-                    new App(args[i + 1]).run();
+                    Config.ACCESS_SERVER_POINT = args[i + 1];
                 }
             }
-        } else {
-            new App().run();
         }
+
+        new App().advise();
     }
 }

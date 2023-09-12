@@ -1,5 +1,6 @@
 package advisor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -54,15 +55,14 @@ public class App {
     }
 
     private class NewCommand extends Command {
+        private static final String NEW_RELEASES_RESOURCE = "/v1/browse/new-releases";
 
         @Override
         void execute() {
-            System.out.println("""
-                                ---NEW RELEASES---
-                                Mountains [Sia, Diplo, Labrinth]
-                                Runaway [Lil Peep]
-                                The Greatest Show [Panic! At The Disco]
-                                All Out Life [Slipknot]""");
+            String bodyStr = HttpCustomHandler.getBodyResponseAsString(NEW_RELEASES_RESOURCE);
+            List<Album> albums = JsonUtils.getAlbumsFromBodyResponse(bodyStr);
+
+            albums.forEach(album -> System.out.println(album + "\n"));
         }
     }
 

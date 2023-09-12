@@ -1,7 +1,8 @@
 package advisor;
 
 public class Config {
-    public static String ACCESS_SERVER_POINT = "https://accounts.spotify.com";
+    public static String AUTH_SERVER_PATH = "https://accounts.spotify.com";
+    public static String API_SERVER_PATH = "https://api.spotify.com";
 
     public static String REDIRECT_URI = "http://localhost:8080";
     public static String CLIENT_ID = "e68bacb349d1465fb09530527e363699";

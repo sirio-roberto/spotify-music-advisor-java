@@ -18,7 +18,7 @@ public class Authorization {
     public void createHttpServer() {
 
         String url = String.format("%s/authorize?client_id=%s&redirect_uri=%s&response_type=code",
-                ACCESS_SERVER_POINT, CLIENT_ID, REDIRECT_URI);
+                AUTH_SERVER_PATH, CLIENT_ID, REDIRECT_URI);
 
         System.out.println("use this link to request the access code:");
         System.out.println(url);
@@ -75,7 +75,7 @@ public class Authorization {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
-                .uri(URI.create(ACCESS_SERVER_POINT + "/api/token"))
+                .uri(URI.create(AUTH_SERVER_PATH + "/api/token"))
                 .POST(HttpRequest.BodyPublishers.ofString(
                         "grant_type=authorization_code" +
                                 "&code=" + AUTH_CODE +

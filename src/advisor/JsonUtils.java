@@ -76,4 +76,17 @@ public class JsonUtils {
         }
         return playlistsMap;
     }
+
+    public static boolean isErrorResponse(String bodyStr) {
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+        JsonElement errorElement = jo.get("error");
+        return errorElement != null;
+    }
+
+    public static String getErrorMessageBodyResponse(String bodyStr) {
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+
+        JsonObject errorObj = jo.get("error").getAsJsonObject();
+        return errorObj.get("message").getAsString();
+    }
 }

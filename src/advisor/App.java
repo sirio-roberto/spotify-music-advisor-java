@@ -116,10 +116,14 @@ public class App {
                     String playlistsIdResource = "/v1/browse/categories/" + categoryId + "/playlists";
 
                     bodyStr = HttpCustomHandler.getBodyResponseAsString(playlistsIdResource);
-                    Map<String, String> playlistsMap = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
+                    if (JsonUtils.isErrorResponse(bodyStr)) {
+                        System.out.println(JsonUtils.getErrorMessageBodyResponse(bodyStr));
+                    } else {
+                        Map<String, String> playlistsMap = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
 
-                    playlistsMap.keySet()
-                            .forEach(k -> System.out.println(playlistsMap.get(k).concat("\n").concat(k.concat("\n"))));
+                        playlistsMap.keySet()
+                                .forEach(k -> System.out.println(playlistsMap.get(k).concat("\n").concat(k.concat("\n"))));
+                    }
                 } else {
                     System.out.println("Unknown category name.");
                 }

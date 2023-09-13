@@ -38,17 +38,38 @@ public class JsonUtils {
         Map<String, String> categoriesMap = new HashMap<>();
         JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
 
-        JsonObject albumsObj = jo.get("categories").getAsJsonObject();
-        JsonArray items = albumsObj.get("items").getAsJsonArray();
+        JsonObject categoriesObj = jo.get("categories").getAsJsonObject();
+        JsonArray items = categoriesObj.get("items").getAsJsonArray();
         for(JsonElement element : items) {
             if (element.isJsonObject()) {
                 JsonObject itemObj = element.getAsJsonObject();
 
                 String id = itemObj.get("id").getAsString();
                 String name = itemObj.get("name").getAsString();
-                categoriesMap.put(id, name);
+                categoriesMap.put(name, id);
             }
         }
         return categoriesMap;
+    }
+
+    public static Map<String, String> getFeaturedPlaylistsFromBodyResponse(String bodyStr) {
+        Map<String, String> playlistsMap = new HashMap<>();
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+
+        JsonObject playlistsObj = jo.get("playlists").getAsJsonObject();
+        JsonArray items = playlistsObj.get("items").getAsJsonArray();
+        for(JsonElement element : items) {
+            if (element.isJsonObject()) {
+                JsonObject itemObj = element.getAsJsonObject();
+
+                JsonObject urlObj = itemObj.get("external_urls").getAsJsonObject();
+                String url = urlObj.get("spotify").getAsString();
+
+                String name = itemObj.get("name").getAsString();
+
+                playlistsMap.put(url, name);
+            }
+        }
+        return playlistsMap;
     }
 }

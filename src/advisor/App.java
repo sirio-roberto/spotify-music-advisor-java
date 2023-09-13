@@ -7,23 +7,10 @@ import java.util.Scanner;
 public class App {
     private boolean running;
     private boolean authenticated;
-    private final Map<String, Command> commands;
-
 
     public App() {
-        this.commands = initCommands();
         running = true;
         authenticated = false;
-    }
-
-    private Map<String, Command> initCommands() {
-        return Map.of(
-                "exit", new ExitCommand(),
-                "new", new NewCommand(),
-                "featured", new FeaturedCommand(),
-                "categories", new CategoriesCommand(),
-                "playlists Mood", new PlaylistsCommand(),
-                "auth", new AuthCommand());
     }
 
     public void advise() {
@@ -32,9 +19,24 @@ public class App {
         while (running) {
             String userInput = scanner.nextLine();
             if ("auth".equals(userInput) || "exit".equals(userInput) || authenticated) {
-                commands.get(userInput).execute();
+                handleCommand(userInput);
             } else {
                 System.out.println("Please, provide access for application.");
+            }
+        }
+    }
+
+    private void handleCommand(String userInput) {
+        if (userInput.startsWith("playlists")) {
+            new PlaylistsCommand(userInput).execute();
+        } else {
+            switch (userInput) {
+                case "exit" -> new ExitCommand().execute();
+                case "new" -> new NewCommand().execute();
+                case "featured" -> new FeaturedCommand().execute();
+                case "categories" -> new CategoriesCommand().execute();
+                case "auth" -> new AuthCommand().execute();
+                default -> System.out.println("Unknown command");
             }
         }
     }
@@ -54,7 +56,7 @@ public class App {
         }
     }
 
-    private class NewCommand extends Command {
+    private static class NewCommand extends Command {
         private static final String NEW_RELEASES_RESOURCE = "/v1/browse/new-releases";
 
         @Override
@@ -66,42 +68,64 @@ public class App {
         }
     }
 
-    private class FeaturedCommand extends Command {
+    private static class FeaturedCommand extends Command {
+
+        private static final String FEATURED_RESOURCE = "/v1/browse/featured-playlists";
 
         @Override
         void execute() {
-            System.out.println("""
-                                ---FEATURED---
-                                Mellow Morning
-                                Wake Up and Smell the Coffee
-                                Monday Motivation
-                                Songs to Sing in the Shower""");
+            String bodyStr = HttpCustomHandler.getBodyResponseAsString(FEATURED_RESOURCE);
+            Map<String, String> playlistsMap = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
+
+            playlistsMap.keySet()
+                    .forEach(k -> System.out.println(playlistsMap.get(k).concat("\n").concat(k.concat("\n"))));
         }
     }
 
-    private class CategoriesCommand extends Command {
+    private static class CategoriesCommand extends Command {
 
-        private static final String NEW_RELEASES_RESOURCE = "/v1/browse/categories";
+        private static final String CATEGORIES_RESOURCE = "/v1/browse/categories";
 
         @Override
         void execute() {
-            String bodyStr = HttpCustomHandler.getBodyResponseAsString(NEW_RELEASES_RESOURCE);
+            String bodyStr = HttpCustomHandler.getBodyResponseAsString(CATEGORIES_RESOURCE);
             Map<String, String> categoriesMap = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
 
-            categoriesMap.values().forEach(System.out::println);
+            categoriesMap.keySet().forEach(System.out::println);
         }
     }
 
-    private class PlaylistsCommand extends Command {
+    private static class PlaylistsCommand extends Command {
+        private static final String CATEGORIES_RESOURCE = "/v1/browse/categories";
+        private final String NAME;
+
+        public PlaylistsCommand(String playlistName) {
+            NAME = playlistName;
+        }
 
         @Override
         void execute() {
-            System.out.println("""
-                                ---MOOD PLAYLISTS---
-                                Walk Like A Badass \s
-                                Rage Beats \s
-                                Arab Mood Booster \s
-                                Sunday Stroll""");
+            if (NAME.split(" ").length > 1) {
+                String categoryName = NAME.substring("playlists ".length());
+
+                String bodyStr = HttpCustomHandler.getBodyResponseAsString(CATEGORIES_RESOURCE);
+                Map<String, String> categoriesMap = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
+
+                String categoryId = categoriesMap.get(categoryName);
+                if (categoryId != null) {
+                    String playlistsIdResource = "/v1/browse/categories/" + categoryId + "/playlists";
+
+                    bodyStr = HttpCustomHandler.getBodyResponseAsString(playlistsIdResource);
+                    Map<String, String> playlistsMap = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
+
+                    playlistsMap.keySet()
+                            .forEach(k -> System.out.println(playlistsMap.get(k).concat("\n").concat(k.concat("\n"))));
+                } else {
+                    System.out.println("Unknown category name.");
+                }
+            } else {
+                System.out.println("Unknown category name.");
+            }
         }
     }
 

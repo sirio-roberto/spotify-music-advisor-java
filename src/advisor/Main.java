@@ -11,6 +11,10 @@ public class Main {
                 if ("-resource".equals(args[i])) {
                     Config.API_SERVER_PATH = args[i + 1];
                 }
+
+                if ("-page".equals(args[i])) {
+                    Config.RECORDS_FOR_PAGE = Integer.parseInt(args[i + 1]);
+                }
             }
         }
 

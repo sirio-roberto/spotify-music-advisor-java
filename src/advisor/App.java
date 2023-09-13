@@ -5,8 +5,9 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class App {
-    private boolean running;
-    private boolean authenticated;
+    private static final Scanner scanner = new Scanner(System.in);
+    private static boolean running;
+    private static boolean authenticated;
 
     public App() {
         running = true;
@@ -14,8 +15,6 @@ public class App {
     }
 
     public void advise() {
-        Scanner scanner = new Scanner(System.in);
-
         while (running) {
             String userInput = scanner.nextLine();
             if ("auth".equals(userInput) || "exit".equals(userInput) || authenticated) {
@@ -26,7 +25,7 @@ public class App {
         }
     }
 
-    private void handleCommand(String userInput) {
+    private static void handleCommand(String userInput) {
         if (userInput.startsWith("playlists")) {
             new PlaylistsCommand(userInput).execute();
         } else {
@@ -46,7 +45,7 @@ public class App {
         abstract void execute();
     }
 
-    private class ExitCommand extends Command {
+    private static class ExitCommand extends Command {
 
         @Override
         void execute() {
@@ -64,7 +63,48 @@ public class App {
             String bodyStr = HttpCustomHandler.getBodyResponseAsString(NEW_RELEASES_RESOURCE);
             List<Album> albums = JsonUtils.getAlbumsFromBodyResponse(bodyStr);
 
-            albums.forEach(album -> System.out.println(album + "\n"));
+            int numOfPages = (int) Math.ceil((double) albums.size() / Config.RECORDS_FOR_PAGE);
+
+            int i = 0;
+            int currentPage = 1;
+
+            for (int j = 0; true; j++) {
+                if (j < 0) {
+                    j = 0;
+                }
+                System.out.println(albums.get(j) + "\n");
+                i++;
+
+                if (i == Config.RECORDS_FOR_PAGE || j == albums.size() - 1) {
+                    i = 0;
+
+                    System.out.printf("---PAGE %s OF %s---\n", currentPage, numOfPages);
+
+                    while (true) {
+                        String userInput = scanner.nextLine();
+                        if ("next".equals(userInput)) {
+                            if (currentPage == numOfPages) {
+                                System.out.println("No more pages.");
+                            } else {
+                                currentPage++;
+                                break;
+                            }
+                        } else if ("prev".equals(userInput)) {
+                            if (currentPage == 1) {
+                                System.out.println("No more pages.");
+                            } else {
+                                j -= 2 * Config.RECORDS_FOR_PAGE;
+                                currentPage--;
+                                break;
+                            }
+                        } else {
+                            handleCommand(userInput);
+                            return;
+                        }
+                    }
+                }
+
+            }
         }
     }
 
@@ -133,7 +173,7 @@ public class App {
         }
     }
 
-    private class AuthCommand extends Command {
+    private static class AuthCommand extends Command {
 
         @Override
         void execute() {

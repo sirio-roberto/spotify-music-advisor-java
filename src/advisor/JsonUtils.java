@@ -17,7 +17,7 @@ public class JsonUtils {
 
         JsonObject albumsObj = jo.get("albums").getAsJsonObject();
         JsonArray items = albumsObj.get("items").getAsJsonArray();
-        for(JsonElement element : items) {
+        for (JsonElement element : items) {
             if (element.isJsonObject()) {
                 JsonObject itemObj = element.getAsJsonObject();
                 String name = itemObj.get("name").getAsString();
@@ -25,10 +25,14 @@ public class JsonUtils {
                 JsonObject urlObj = itemObj.get("external_urls").getAsJsonObject();
                 String url = urlObj.get("spotify").getAsString();
 
-                JsonObject firstArtistObj = itemObj.get("artists").getAsJsonArray().get(0).getAsJsonObject();
-                String artistName = firstArtistObj.get("name").getAsString();
+                JsonArray artists = itemObj.get("artists").getAsJsonArray();
+                String[] artistsNameArray = new String[artists.size()];
+                for (int i = 0; i < artistsNameArray.length; i++) {
+                    JsonObject artistObj = artists.get(i).getAsJsonObject();
+                    artistsNameArray[i] = artistObj.get("name").getAsString();
+                }
 
-                albumList.add(new Album(name, artistName, url));
+                albumList.add(new Album(name, artistsNameArray, url));
             }
         }
         return albumList;

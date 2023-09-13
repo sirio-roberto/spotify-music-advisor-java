@@ -81,14 +81,14 @@ public class App {
 
     private class CategoriesCommand extends Command {
 
+        private static final String NEW_RELEASES_RESOURCE = "/v1/browse/categories";
+
         @Override
         void execute() {
-            System.out.println("""
-                                ---CATEGORIES---
-                                Top Lists
-                                Pop
-                                Mood
-                                Latin""");
+            String bodyStr = HttpCustomHandler.getBodyResponseAsString(NEW_RELEASES_RESOURCE);
+            Map<String, String> categoriesMap = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
+
+            categoriesMap.values().forEach(System.out::println);
         }
     }
 

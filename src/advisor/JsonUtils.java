@@ -6,7 +6,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JsonUtils {
     public static List<Album> getAlbumsFromBodyResponse(String bodyStr) {
@@ -28,5 +30,23 @@ public class JsonUtils {
             }
         }
         return albumList;
+    }
+
+    public static Map<String, String> getCategoriesFromBodyResponse(String bodyStr) {
+        Map<String, String> categoriesMap = new HashMap<>();
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+
+        JsonObject albumsObj = jo.get("categories").getAsJsonObject();
+        JsonArray items = albumsObj.get("items").getAsJsonArray();
+        for(JsonElement element : items) {
+            if (element.isJsonObject()) {
+                JsonObject itemObj = element.getAsJsonObject();
+
+                String id = itemObj.get("id").getAsString();
+                String name = itemObj.get("name").getAsString();
+                categoriesMap.put(id, name);
+            }
+        }
+        return categoriesMap;
     }
 }

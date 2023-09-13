@@ -21,7 +21,9 @@ public class JsonUtils {
             if (element.isJsonObject()) {
                 JsonObject itemObj = element.getAsJsonObject();
                 String name = itemObj.get("name").getAsString();
-                String url = itemObj.get("href").getAsString();
+
+                JsonObject urlObj = itemObj.get("external_urls").getAsJsonObject();
+                String url = urlObj.get("spotify").getAsString();
 
                 JsonObject firstArtistObj = itemObj.get("artists").getAsJsonArray().get(0).getAsJsonObject();
                 String artistName = firstArtistObj.get("name").getAsString();

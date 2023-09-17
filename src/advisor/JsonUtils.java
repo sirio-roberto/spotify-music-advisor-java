@@ -1,5 +1,6 @@
 package advisor;
 
+import advisor.entities.AbstractEntity;
 import advisor.entities.Album;
 import advisor.entities.Category;
 import advisor.entities.Playlist;
@@ -91,5 +92,32 @@ public class JsonUtils {
 
         JsonObject errorObj = jo.get("error").getAsJsonObject();
         return errorObj.get("message").getAsString();
+    }
+
+    public static int getTotalRecords(String bodyStr, String rootStr) {
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+
+        JsonObject rootObj = jo.get(rootStr).getAsJsonObject();
+        return Integer.parseInt(rootObj.get("total").getAsString());
+    }
+
+    public static String getPrevious(String bodyStr, String rootStr) {
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+
+        JsonObject rootObj = jo.get(rootStr).getAsJsonObject();
+        if (rootObj.get("previous").isJsonNull()) {
+            return null;
+        }
+        return rootObj.get("previous").getAsString();
+    }
+
+    public static String getNext(String bodyStr, String rootStr) {
+        JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
+
+        JsonObject rootObj = jo.get(rootStr).getAsJsonObject();
+        if (rootObj.get("next").isJsonNull()) {
+            return null;
+        }
+        return rootObj.get("next").getAsString();
     }
 }

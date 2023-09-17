@@ -1,5 +1,8 @@
 package advisor;
 
+import advisor.entities.AbstractEntity;
+import advisor.entities.Album;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -63,48 +66,52 @@ public class App {
             String bodyStr = HttpCustomHandler.getBodyResponseAsString(NEW_RELEASES_RESOURCE);
             List<Album> albums = JsonUtils.getAlbumsFromBodyResponse(bodyStr);
 
-            int numOfPages = (int) Math.ceil((double) albums.size() / Config.RECORDS_FOR_PAGE);
+            executeUsingPagination(albums);
+        }
+    }
 
-            int i = 0;
-            int currentPage = 1;
+    private static void executeUsingPagination(List<? extends AbstractEntity> entityList) {
+        int numOfPages = (int) Math.ceil((double) entityList.size() / Config.RECORDS_FOR_PAGE);
 
-            for (int j = 0; true; j++) {
-                if (j < 0) {
-                    j = 0;
-                }
-                System.out.println(albums.get(j) + "\n");
-                i++;
+        int i = 0;
+        int currentPage = 1;
 
-                if (i == Config.RECORDS_FOR_PAGE || j == albums.size() - 1) {
-                    i = 0;
+        for (int j = 0; true; j++) {
+            if (j < 0) {
+                j = 0;
+            }
+            System.out.println(entityList.get(j));
+            i++;
 
-                    System.out.printf("---PAGE %s OF %s---\n", currentPage, numOfPages);
+            if (i == Config.RECORDS_FOR_PAGE || j == entityList.size() - 1) {
+                i = 0;
 
-                    while (true) {
-                        String userInput = scanner.nextLine();
-                        if ("next".equals(userInput)) {
-                            if (currentPage == numOfPages) {
-                                System.out.println("No more pages.");
-                            } else {
-                                currentPage++;
-                                break;
-                            }
-                        } else if ("prev".equals(userInput)) {
-                            if (currentPage == 1) {
-                                System.out.println("No more pages.");
-                            } else {
-                                j -= 2 * Config.RECORDS_FOR_PAGE;
-                                currentPage--;
-                                break;
-                            }
+                System.out.printf("---PAGE %s OF %s---\n", currentPage, numOfPages);
+
+                while (true) {
+                    String userInput = scanner.nextLine();
+                    if ("next".equals(userInput)) {
+                        if (currentPage == numOfPages) {
+                            System.out.println("No more pages.");
                         } else {
-                            handleCommand(userInput);
-                            return;
+                            currentPage++;
+                            break;
                         }
+                    } else if ("prev".equals(userInput)) {
+                        if (currentPage == 1) {
+                            System.out.println("No more pages.");
+                        } else {
+                            j -= 2 * Config.RECORDS_FOR_PAGE;
+                            currentPage--;
+                            break;
+                        }
+                    } else {
+                        handleCommand(userInput);
+                        return;
                     }
                 }
-
             }
+
         }
     }
 

@@ -1,20 +1,19 @@
-package advisor;
+package advisor.entities;
 
 import java.util.Arrays;
 
-public class Album {
-    private String name;
+public class Album extends AbstractEntity {
     private String[] artists;
     private String url;
 
     public Album(String name, String[] artists, String link) {
-        this.name = name;
+        super(name);
         this.artists = artists;
         this.url = link;
     }
 
     @Override
     public String toString() {
-        return name + "\n" + Arrays.toString(artists) + "\n" + url;
+        return getName() + "\n" + Arrays.toString(artists) + "\n" + url + "\n";
     }
 }

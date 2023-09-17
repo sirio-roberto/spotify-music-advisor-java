@@ -1,6 +1,5 @@
 package advisor;
 
-import advisor.entities.AbstractEntity;
 import advisor.entities.Album;
 import advisor.entities.Category;
 import advisor.entities.Playlist;
@@ -10,9 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class JsonUtils {
     public static List<Album> getAlbumsFromBodyResponse(String bodyStr) {

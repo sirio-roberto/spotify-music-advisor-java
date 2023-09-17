@@ -1,13 +1,10 @@
 package advisor;
 
 import advisor.entities.AbstractEntity;
-import advisor.entities.Album;
 import advisor.entities.Category;
-import advisor.entities.Playlist;
 
 import java.util.List;
 import java.util.Scanner;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class App {
@@ -66,8 +63,6 @@ public class App {
         private static final String NEW_RELEASES_RESOURCE = "/v1/browse/new-releases";
         @Override
         void execute() {
-            String bodyStr = HttpCustomHandler.getBodyResponseAsString(NEW_RELEASES_RESOURCE);
-
             executeUsingPagination(NEW_RELEASES_RESOURCE, "albums", JsonUtils::getAlbumsFromBodyResponse);
         }
 
@@ -79,10 +74,7 @@ public class App {
 
         @Override
         void execute() {
-            String bodyStr = HttpCustomHandler.getBodyResponseAsString(FEATURED_RESOURCE);
-            List<Playlist> playlists = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
-
-            executeUsingPagination(playlists);
+            executeUsingPagination(FEATURED_RESOURCE, "playlists", JsonUtils::getFeaturedPlaylistsFromBodyResponse);
         }
     }
 
@@ -92,10 +84,7 @@ public class App {
 
         @Override
         void execute() {
-            String bodyStr = HttpCustomHandler.getBodyResponseAsString(CATEGORIES_RESOURCE);
-            List<Category> categories = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
-
-            executeUsingPagination(categories);
+            executeUsingPagination(CATEGORIES_RESOURCE, "categories", JsonUtils::getCategoriesFromBodyResponse);
         }
     }
 
@@ -123,9 +112,7 @@ public class App {
                     if (JsonUtils.isErrorResponse(bodyStr)) {
                         System.out.println(JsonUtils.getErrorMessageBodyResponse(bodyStr));
                     } else {
-                        List<Playlist> playlists = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
-
-                        executeUsingPagination(playlists);
+                        executeUsingPagination(playlistsIdResource, "playlists", JsonUtils::getFeaturedPlaylistsFromBodyResponse);
                     }
                 } else {
                     System.out.println("Unknown category name.");
@@ -158,50 +145,6 @@ public class App {
         }
     }
 
-    private static void executeUsingPagination(List<? extends AbstractEntity> entityList) {
-        int numOfPages = (int) Math.ceil((double) entityList.size() / Config.RECORDS_FOR_PAGE);
-
-        int i = 0;
-        int currentPage = 1;
-
-        for (int j = 0; true; j++) {
-            if (j < 0) {
-                j = 0;
-            }
-            System.out.println(entityList.get(j));
-            i++;
-
-            if (i == Config.RECORDS_FOR_PAGE || j == entityList.size() - 1) {
-                i = 0;
-
-                System.out.printf("---PAGE %s OF %s---\n", currentPage, numOfPages);
-
-                while (true) {
-                    String userInput = scanner.nextLine();
-                    if ("next".equals(userInput)) {
-                        if (currentPage == numOfPages) {
-                            System.out.println("No more pages.");
-                        } else {
-                            currentPage++;
-                            break;
-                        }
-                    } else if ("prev".equals(userInput)) {
-                        if (currentPage == 1) {
-                            System.out.println("No more pages.");
-                        } else {
-                            j -= 2 * Config.RECORDS_FOR_PAGE;
-                            currentPage--;
-                            break;
-                        }
-                    } else {
-                        handleCommand(userInput);
-                        return;
-                    }
-                }
-            }
-
-        }
-    }
 
     private static void executeUsingPagination(String resource, String rootStr, Function<String, List<? extends AbstractEntity>> function) {
         String bodyStr = HttpCustomHandler.getBodyResponseAsString(resource);

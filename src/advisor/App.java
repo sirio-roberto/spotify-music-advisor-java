@@ -2,10 +2,10 @@ package advisor;
 
 import advisor.entities.AbstractEntity;
 import advisor.entities.Album;
+import advisor.entities.Category;
 import advisor.entities.Playlist;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 public class App {
@@ -136,9 +136,9 @@ public class App {
         @Override
         void execute() {
             String bodyStr = HttpCustomHandler.getBodyResponseAsString(CATEGORIES_RESOURCE);
-            Map<String, String> categoriesMap = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
+            List<Category> categories = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
 
-            categoriesMap.keySet().forEach(System.out::println);
+            executeUsingPagination(categories);
         }
     }
 
@@ -156,9 +156,9 @@ public class App {
                 String categoryName = NAME.substring("playlists ".length());
 
                 String bodyStr = HttpCustomHandler.getBodyResponseAsString(CATEGORIES_RESOURCE);
-                Map<String, String> categoriesMap = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
+                List<Category> categories = JsonUtils.getCategoriesFromBodyResponse(bodyStr);
 
-                String categoryId = categoriesMap.get(categoryName);
+                String categoryId = getCategoryIdByName(categories, categoryName);
                 if (categoryId != null) {
                     String playlistsIdResource = "/v1/browse/categories/" + categoryId + "/playlists";
 
@@ -176,6 +176,14 @@ public class App {
             } else {
                 System.out.println("Unknown category name.");
             }
+        }
+
+        private String getCategoryIdByName(List<Category> categories, String name) {
+            return categories.stream()
+                    .filter(c -> c.getName().equals(name))
+                    .map(Category::getId)
+                    .findAny()
+                    .orElse(null);
         }
     }
 

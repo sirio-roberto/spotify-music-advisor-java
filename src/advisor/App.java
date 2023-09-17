@@ -2,6 +2,7 @@ package advisor;
 
 import advisor.entities.AbstractEntity;
 import advisor.entities.Album;
+import advisor.entities.Playlist;
 
 import java.util.List;
 import java.util.Map;
@@ -122,10 +123,9 @@ public class App {
         @Override
         void execute() {
             String bodyStr = HttpCustomHandler.getBodyResponseAsString(FEATURED_RESOURCE);
-            Map<String, String> playlistsMap = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
+            List<Playlist> playlists = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
 
-            playlistsMap.keySet()
-                    .forEach(k -> System.out.println(playlistsMap.get(k).concat("\n").concat(k.concat("\n"))));
+            executeUsingPagination(playlists);
         }
     }
 
@@ -166,10 +166,9 @@ public class App {
                     if (JsonUtils.isErrorResponse(bodyStr)) {
                         System.out.println(JsonUtils.getErrorMessageBodyResponse(bodyStr));
                     } else {
-                        Map<String, String> playlistsMap = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
+                        List<Playlist> playlists = JsonUtils.getFeaturedPlaylistsFromBodyResponse(bodyStr);
 
-                        playlistsMap.keySet()
-                                .forEach(k -> System.out.println(playlistsMap.get(k).concat("\n").concat(k.concat("\n"))));
+                        executeUsingPagination(playlists);
                     }
                 } else {
                     System.out.println("Unknown category name.");

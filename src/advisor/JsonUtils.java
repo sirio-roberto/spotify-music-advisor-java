@@ -1,6 +1,7 @@
 package advisor;
 
 import advisor.entities.Album;
+import advisor.entities.Playlist;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -57,8 +58,8 @@ public class JsonUtils {
         return categoriesMap;
     }
 
-    public static Map<String, String> getFeaturedPlaylistsFromBodyResponse(String bodyStr) {
-        Map<String, String> playlistsMap = new HashMap<>();
+    public static List<Playlist> getFeaturedPlaylistsFromBodyResponse(String bodyStr) {
+        List<Playlist> playlists = new ArrayList<>();
         JsonObject jo = JsonParser.parseString(bodyStr).getAsJsonObject();
 
         JsonObject playlistsObj = jo.get("playlists").getAsJsonObject();
@@ -72,10 +73,10 @@ public class JsonUtils {
 
                 String name = itemObj.get("name").getAsString();
 
-                playlistsMap.put(url, name);
+                playlists.add(new Playlist(name, url));
             }
         }
-        return playlistsMap;
+        return playlists;
     }
 
     public static boolean isErrorResponse(String bodyStr) {
